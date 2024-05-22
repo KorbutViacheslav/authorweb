@@ -25,7 +25,7 @@ const Postauthor = () => {
           <Form.Group controlId="formBasicFirstName">
             <Form.Control
               type="text"
-              name="firstname"
+              name="firstName"
               placeholder="Enter first name"
               value={formData.firstName}
               onChange={handleInputChange}
@@ -35,7 +35,7 @@ const Postauthor = () => {
           <Form.Group controlId="formBasicLastName">
             <Form.Control
               type="text"
-              name="lastname"
+              name="lastName"
               placeholder="Enter last name"
               value={formData.lastName}
               onChange={handleInputChange}
