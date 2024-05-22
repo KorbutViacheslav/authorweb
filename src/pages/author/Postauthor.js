@@ -2,6 +2,7 @@ import Form from "react-bootstrap/Form";
 import "./Postauthor.css";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
+import { useNavigate } from "react-router-dom";
 
 const Postauthor = () => {
   const [formData, setFormData] = useState({
@@ -17,11 +18,31 @@ const Postauthor = () => {
     });
   };
 
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(formData);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/author", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      console.log("Author created: ", data);
+      navigate("/");
+    } catch (error) {
+      console.log("Error creating author: ", error.massage);
+    }
+  };
+
   return (
     <>
       <div className="center-form">
         <h1>Post New Author</h1>
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formBasicFirstName">
             <Form.Control
               type="text"
