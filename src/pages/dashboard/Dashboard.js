@@ -12,11 +12,34 @@ const Dashboard = () => {
         const data = await response.json();
         setAuthors(data);
       } catch (error) {
-        console.log("Error fetching authors:", error.massage);
+        console.log("Error fetching authors:", error.message);
       }
     };
     fetchAuthors();
   }, []);
+
+  const handleDelete = async (authorId) => {
+    console.log("Author ID: ", authorId);
+    try {
+      const responce = await fetch(
+        `http://localhost:8080/api/author/${authorId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (responce.ok) {
+        setAuthors((prevAuthors) =>
+          prevAuthors.filter((author) => author.id !== authorId)
+        );
+      }
+
+      console.log(`Author with id ${authorId} deleted successfully`);
+    } catch (error) {
+      console.log("Error deleting author", error.message);
+    }
+  };
+
   return (
     <>
       <Container className="mt-5">
@@ -38,7 +61,12 @@ const Dashboard = () => {
                     <td>{author.lastName}</td>
                     <td>
                       <Button variant="outline-secondary">Update</Button>{" "}
-                      <Button variant="outline-danger">Delete</Button>
+                      <Button
+                        variant="outline-danger"
+                        onClick={() => handleDelete(author.id)}
+                      >
+                        Delete
+                      </Button>
                     </td>
                   </tr>
                 ))}
