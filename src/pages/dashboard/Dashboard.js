@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const [authors, setAuthors] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAuthors = async () => {
@@ -19,7 +21,6 @@ const Dashboard = () => {
   }, []);
 
   const handleDelete = async (authorId) => {
-    console.log("Author ID: ", authorId);
     try {
       const responce = await fetch(
         `http://localhost:8080/api/author/${authorId}`,
@@ -38,6 +39,10 @@ const Dashboard = () => {
     } catch (error) {
       console.log("Error deleting author", error.message);
     }
+  };
+
+  const handleUpdate = (authorId) => {
+    navigate(`/author/${authorId}`);
   };
 
   return (
@@ -60,7 +65,12 @@ const Dashboard = () => {
                     <td>{author.firstName}</td>
                     <td>{author.lastName}</td>
                     <td>
-                      <Button variant="outline-secondary">Update</Button>{" "}
+                      <Button
+                        variant="outline-secondary"
+                        onClick={() => handleUpdate(author.id)}
+                      >
+                        Update
+                      </Button>{" "}
                       <Button
                         variant="outline-danger"
                         onClick={() => handleDelete(author.id)}
