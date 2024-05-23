@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Table } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Container,
+  Row,
+  Table,
+  Pagination,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const [authors, setAuthors] = useState([]);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem("currentPage");
+    return savedPage ? JSON.parse(savedPage) : 1;
+  });
+  const authorsPerPage = 3;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,14 +34,14 @@ const Dashboard = () => {
 
   const handleDelete = async (authorId) => {
     try {
-      const responce = await fetch(
+      const response = await fetch(
         `http://localhost:8080/api/author/${authorId}`,
         {
           method: "DELETE",
         }
       );
 
-      if (responce.ok) {
+      if (response.ok) {
         setAuthors((prevAuthors) =>
           prevAuthors.filter((author) => author.id !== authorId)
         );
@@ -43,6 +55,15 @@ const Dashboard = () => {
 
   const handleUpdate = (authorId) => {
     navigate(`/author/${authorId}`);
+  };
+
+  const indexOfLastAuthor = currentPage * authorsPerPage;
+  const indexOfFirstAuthor = indexOfLastAuthor - authorsPerPage;
+  const currentAuthors = authors.slice(indexOfFirstAuthor, indexOfLastAuthor);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    localStorage.setItem("currentPage", JSON.stringify(pageNumber));
   };
 
   return (
@@ -60,7 +81,7 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {authors.map((author) => (
+                {currentAuthors.map((author) => (
                   <tr key={author.id}>
                     <td>{author.firstName}</td>
                     <td>{author.lastName}</td>
@@ -82,10 +103,24 @@ const Dashboard = () => {
                 ))}
               </tbody>
             </Table>
+            <Pagination>
+              {[
+                ...Array(Math.ceil(authors.length / authorsPerPage)).keys(),
+              ].map((number) => (
+                <Pagination.Item
+                  key={number + 1}
+                  onClick={() => paginate(number + 1)}
+                  active={number + 1 === currentPage}
+                >
+                  {number + 1}
+                </Pagination.Item>
+              ))}
+            </Pagination>
           </Col>
         </Row>
       </Container>
     </>
   );
 };
+
 export default Dashboard;
