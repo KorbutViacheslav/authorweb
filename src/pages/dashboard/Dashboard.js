@@ -6,8 +6,10 @@ import {
   Row,
   Table,
   Pagination,
+  Alert,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { fetchAuthors, deleteAuthor } from "./requests.js";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -16,40 +18,33 @@ const Dashboard = () => {
     const savedPage = localStorage.getItem("currentPage");
     return savedPage ? JSON.parse(savedPage) : 1;
   });
+  const [error, setError] = useState(null);
   const authorsPerPage = 3;
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAuthors = async () => {
+    const getAuthors = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/authors");
-        const data = await response.json();
+        const data = await fetchAuthors();
         setAuthors(data);
       } catch (error) {
-        console.log("Error fetching authors:", error.message);
+        setError("Failed to fetch authors. Please try again later.");
+        console.error("Error fetching authors:", error.message);
       }
     };
-    fetchAuthors();
+    getAuthors();
   }, []);
 
   const handleDelete = async (authorId) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/author/${authorId}`,
-        {
-          method: "DELETE",
-        }
+      await deleteAuthor(authorId);
+      setAuthors((prevAuthors) =>
+        prevAuthors.filter((author) => author.id !== authorId)
       );
-
-      if (response.ok) {
-        setAuthors((prevAuthors) =>
-          prevAuthors.filter((author) => author.id !== authorId)
-        );
-      }
-
       console.log(`Author with id ${authorId} deleted successfully`);
     } catch (error) {
-      console.log("Error deleting author", error.message);
+      setError("Failed to delete author. Please try again later.");
+      console.error("Error deleting author:", error.message);
     }
   };
 
@@ -72,6 +67,7 @@ const Dashboard = () => {
         <Row>
           <Col>
             <h1 className="text-center">Authors</h1>
+            {error && <Alert variant="danger">{error}</Alert>}
             <Table striped bordered hover responsive>
               <thead>
                 <tr>
